@@ -1,0 +1,215 @@
+---
+title: "Differential Analysis - Yang's Adipocyte Data"
+author: "Nick Wawee"
+date: "8/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(parallel)
+library(stats)
+library(matrixStats)
+library(ggplot2)
+library(ggrepel)
+library(rGREAT)
+#functions
+bednames<-function(bedmat){#this function takes a BED3 file and returns a single character vector of names for regions
+  bedmat[,1]=paste(bedmat[,1],rep(":", nrow(bedmat)),sep="")
+  bedmat[,2]=paste(as.character(bedmat[,2]), as.character(bedmat[,3]),sep="-")
+  bednames<-paste(bedmat[,1],bedmat[,2],sep="")      
+}
+#parameters
+hm="H3K27ac"
+nc=4#number of cores
+dt="seqdepthnorm"#datatype
+#loading
+load(paste("/Volumes/projects_secondary/mnp/nick/Leslie.Yang/adipocyte_data/ChIPseq2/",hm,"_",dt,"/matrixfiles/enrichmentdf.RData", sep=""))
+load("/Volumes/projects_secondary/mnp/nick/Leslie.Yang/adipocyte_data/ChIPseq/comp_mat/bedregions_mat/mousedata.Rdata")
+mousedata=features
+```
+
+This document will run a two sample, unpaired t test on the peak AUC's from Yang's RELACS ChIP-seq data for H3K27ac. Testing will be done on pairwise phenotypes. First, the WT and huge group promoter regions will be tested. The code below displays how the groups are separated and the function called to perform the test. Two of the regions were removed because of the means of each promoter in the wt and huge were 0.
+
+```{r ttest}
+mat<-enrichmentdf[which(enrichmentdf$Type=="Promoter"),-ncol(enrichmentdf)]
+testgroup1=mat[,grep("huge_", colnames(mat))]
+testgroup2=mat[,grep("lean_wt", colnames(mat))]
+
+pvals<-unlist(mclapply(1:nrow(mat), function(i){
+  t.test(as.numeric(testgroup1[i,]),as.numeric(testgroup2[i,]))$p.value
+}, mc.cores=nc))
+names(pvals)<-rownames(mat)
+
+if( length(which(is.nan(pvals)))>0){
+  testgroup1<-testgroup1[-which(is.nan(pvals)),]
+  testgroup2<-testgroup2[-which(is.nan(pvals)),]
+  pvals<-pvals[-which(is.nan(pvals))]
+}
+```
+```{r volcano, echo=FALSE}
+pvalthresh=0.05
+logthresh=2
+
+volcanodf<-data.frame(neglogp=-1*log10(pvals), logFC=log2(rowMeans(testgroup1)/rowMeans(testgroup2)), logFCsd= log2(rowSds(as.matrix(testgroup1))/rowSds(as.matrix(testgroup2))))
+
+if (length(which(is.nan(volcanodf$logFC)))>0){
+  pvals<-pvals[-which(is.nan(volcanodf$logFC))]
+  pvals<-pvals[-which(is.infinite(volcanodf$logFC))]
+  testgroup1<-testgroup1[-which(is.nan(volcanodf$logFC)),]
+  testgroup2<-testgroup2[-which(is.nan(volcanodf$logFC)),]
+  volcanodf<-volcanodf[-which(is.nan(volcanodf$logFC)),]
+}
+
+volcanodf$pvals<-pvals
+volcanodf=volcanodf[-which(is.infinite(volcanodf$logFC)),]
+volcanodf$threshold<-volcanodf$pvals<pvalthresh & abs(volcanodf$logFC)>=logthresh
+
+ggplot(volcanodf, aes(x=logFC, y=-log10(pvals)))+
+  geom_point(aes(color=threshold, alpha=0.1))+
+  theme_minimal()+
+  labs(x=bquote(""~log[2]~"["~over(Huge,WT)~"]"), y=bquote("-"~log[10]~"[p-value]"))+
+  scale_x_continuous(limits=c(-12,12))+
+  theme(legend.position = "none")
+diffregions<-length(which(volcanodf$threshold))
+```
+
+
+The volcano plots looks more like a volcano. It is apparent that there are more promoter regions that are expressed in the huge than in the WT. With p<`r pvalthresh` and a log2(FC)>`r logthresh`, there are `r diffregions` differentially expressed regions. Next, the associated genes with each region will be annotated. Select genes on the volcano plot will be shown. The genes associated with each region are ones that have a TSS within the region.
+
+```{r tss}
+load("/Volumes/projects_primary/mnp/tools/data/repository/organisms/GRCm38.p6_GENCODE/annotation/gene.filter/GRCm36.p6.GENCODE.RefSeq.filt.RData")
+load(paste("/Volumes/projects_secondary/mnp/nick/Leslie.Yang/adipocyte_data/ChIPseq2/",hm,"_",dt,"/matrixfiles/combinedlist.RData", sep=""))
+
+allbed<-as.data.frame(do.call(cbind,combined[1:3]))
+allbednames<-bednames(allbed)
+ind<-which(allbednames%in%rownames(volcanodf))
+bed<-allbed[ind,]
+
+bedlist<-mclapply(1:nrow(volcanodf),  function(i){
+  chr<-strsplit(rownames(volcanodf)[i],split=":")[[1]][1]
+  start<-strsplit(strsplit(rownames(volcanodf)[i],split=":")[[1]][2],split="-")[[1]][1]
+  end<-strsplit(strsplit(rownames(volcanodf)[i],split=":")[[1]][2],split="-")[[1]][2]
+  data.frame(ch=as.character(chr), st=as.numeric(start), en=as.numeric(end))
+})
+bed<-do.call(rbind,bedlist)
+
+tssgenes<-unlist(mclapply(1:nrow(volcanodf), function(i){
+  st=as.numeric(bed$st[i]); en=as.numeric(bed$en[i]); chr=as.character(bed$ch[i]);
+  ind=which(genes$chr==chr & genes$tss>=st & genes$tss<=en)
+  if (length(ind)==1){
+    gene<-genes$geneName[ind]
+  }else if (length(ind)>1){
+    gene<-paste(genes$geneName[ind], collapse = ", ")
+    }else{
+    gene<-NA
+  }
+  return(gene)
+}, mc.cores = nc))
+
+volcanodf$genes<-NA
+volcanodf$threshold3=volcanodf$logFC>4 & volcanodf$pvals<pvalthresh | volcanodf$logFC< -4&volcanodf$pvals<pvalthresh
+volcanodf$genes[which(volcanodf$threshold3)]<-tssgenes[which(volcanodf$threshold3)]
+
+ggplot(volcanodf, aes(x=logFC, y=-log10(pvals)))+
+  geom_point(aes(color=threshold, alpha=0.1), size=0.3)+
+  theme_minimal()+
+  labs(x=bquote(""~log[2]~"["~over(Huge,WT)~"]"), y=bquote("-"~log[10]~"[p-value]"))+
+  scale_x_continuous(limits=c(-7.5,7.5))+
+  theme(legend.position = "none")+
+  geom_text_repel(aes( label=genes))+
+  ggtitle('Promoter Volcano Plot')+
+  theme(plot.title = element_text(face='bold',hjust=0.5))
+```
+
+A similar analysis will be underwent for the putative enhancers.
+
+```{r testing_volcano_enhancer, echo=FALSE}
+
+mat<-enrichmentdf[which(enrichmentdf$Type=="Enhancer"),-ncol(enrichmentdf)]
+testgroup1=mat[,grep("huge_", colnames(mat))]
+testgroup2=mat[,grep("lean_wt", colnames(mat))]
+
+pvals<-unlist(mclapply(1:nrow(mat), function(i){
+  t.test(as.numeric(testgroup1[i,]),as.numeric(testgroup2[i,]))$p.value
+}, mc.cores=nc))
+names(pvals)<-rownames(mat)
+
+volcanodf<-data.frame(neglogp=-1*log10(pvals), logFC=log2(rowMeans(testgroup1)/rowMeans(testgroup2)), logFCsd= log2(rowSds(as.matrix(testgroup1))/rowSds(as.matrix(testgroup2))))
+
+
+testgroup1<-testgroup1[-which(is.nan(volcanodf$logFC)),]
+testgroup2<-testgroup2[-which(is.nan(volcanodf$logFC)),]
+volcanodf<-volcanodf[-which(is.nan(volcanodf$logFC)),]
+volcanodf<-volcanodf[-which(is.infinite(volcanodf$logFC)),]
+
+bedlist<-mclapply(1:nrow(volcanodf),  function(i){
+  chr<-strsplit(rownames(volcanodf)[i],split=":")[[1]][1]
+  start<-strsplit(strsplit(rownames(volcanodf)[i],split=":")[[1]][2],split="-")[[1]][1]
+  end<-strsplit(strsplit(rownames(volcanodf)[i],split=":")[[1]][2],split="-")[[1]][2]
+  data.frame(ch=as.character(chr), st=as.numeric(start), en=as.numeric(end))
+})
+bed<-do.call(rbind,bedlist)
+
+volcanodf$peaksize=bed$en-bed$st
+pvalthresh=0.05
+logthresh=2
+volcanodf$threshold<-volcanodf$neglogp>=-log10(pvalthresh)& abs(volcanodf$logFC)>=logthresh
+
+ggplot(volcanodf, aes(x=logFC, y=neglogp))+
+  geom_point(aes(color=peaksize), alpha=0.1)+
+  theme_minimal()+
+  labs(x=bquote(""~log[2]~"["~over(Huge,WT)~"]"), y=bquote("-"~log[10]~"[p-value]"))+
+  scale_x_continuous(limits=c(-15,15))+
+  scale_color_continuous(name="Peak Size")
+
+```
+
+It is hard to see a correlation of the peak size and differential analysis. Next a log(FC) and p-value thresholds of `r logthresh` and `r pvalthresh` is depicted.
+
+```{r volcano2, echo=FALSE}
+ggplot(volcanodf, aes(x=logFC, y=neglogp))+
+  geom_point(aes(color=threshold), alpha=0.1)+
+  theme_minimal()+
+  labs(x=bquote(""~log[2]~"["~over(WT,Huge)~"]"), y=bquote("-"~log[10]~"[p-value]"))+
+  scale_x_continuous(limits=c(-15,15))+
+  theme(legend.position = "none")
+```
+
+Next, genes will be found that are found within the enhancer regions and annotated. Select genes will be shown on the volcano plot.
+
+```{r annotation_2, echo=FALSE}
+
+enhagenes<-unlist(mclapply(1:nrow(volcanodf), function(i){
+  st=as.numeric(bed$st[i]); en=as.numeric(bed$en[i]); chr=as.character(bed$ch[i]);
+  pc=ceiling((st+en)/2)#peak center
+  ind=which.min(abs(pc-genes$tss))
+  if (length(ind)==1){
+    gene<-genes$geneName[ind]
+  }else if (length(ind)>1){
+    gene<-paste(genes$geneName[ind], collapse = ", ")
+    }else{
+    gene<-NA
+  }
+  return(gene)
+}, mc.cores = nc))
+
+#making only select genes to be shown on plot
+volcanodf$genes<-NA
+volcanodf$threshold3=volcanodf$logFC >7.5 & volcanodf$neglogp>-log10(pvalthresh) | volcanodf$logFC< -7.5 & volcanodf$neglogp>-log10(pvalthresh)
+length(which(volcanodf$threshold3))
+volcanodf$genes[which(volcanodf$threshold3)]<-enhagenes[which(volcanodf$threshold3)]
+
+ggplot(volcanodf, aes(x=logFC, y=neglogp))+
+  geom_point(aes(color=threshold), alpha=0.2, size=0.05)+
+  theme_minimal()+
+  labs(x=bquote(""~log[2]~"["~over(Huge,WT)~"]"), y=bquote("-"~log[10]~"[p-value]"))+
+  scale_x_continuous(limits=c(-10,10))+
+  theme(legend.position = "none")+
+  geom_text_repel(aes(label=genes))+
+  ggtitle('Enhancer Volcano Plot')+
+  theme(plot.title=element_text(face='bold', hjust=0.5))
+
+```
+

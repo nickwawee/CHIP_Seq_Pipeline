@@ -1,0 +1,217 @@
+chip_dict:
+   499_lean_wt_male_H3K27ac:
+      control: 499_lean_wt_male_Input
+      broad: False
+   499_lean_wt_male_H3K27me3:
+      control: 499_lean_wt_male_Input
+      broad: False
+   499_lean_wt_male_H3K9ac:
+      control: 499_lean_wt_male_Input
+      broad: False
+   499_lean_wt_male_H3K9me3:
+      control: 499_lean_wt_male_Input
+      broad: False
+   500_lean_nnat_male_H3K27ac:
+      control: 500_lean_nnat_male_Input
+      broad: False
+   500_lean_nnat_male_H3K27me3:
+      control: 500_lean_nnat_male_Input
+      broad: False
+   500_lean_nnat_male_H3K9ac:
+      control: 500_lean_nnat_male_Input
+      broad: False
+   500_lean_nnat_male_H3K9me3:
+      control: 500_lean_nnat_male_Input
+      broad: False
+   550_huge_nnat_male_H3K27ac:
+      control: 550_huge_nnat_male_Input
+      broad: False
+   550_huge_nnat_male_H3K27me3:
+      control: 550_huge_nnat_male_Input
+      broad: False
+   550_huge_nnat_male_H3K9ac:
+      control: 550_huge_nnat_male_Input
+      broad: False
+   550_huge_nnat_male_H3K9me3:
+      control: 550_huge_nnat_male_Input
+      broad: False
+   551_lean_wt_male_H3K27ac:
+      control: 551_lean_wt_male_Input
+      broad: False
+   551_lean_wt_male_H3K27me3:
+      control: 551_lean_wt_male_Input
+      broad: False
+   551_lean_wt_male_H3K9ac:
+      control: 551_lean_wt_male_Input
+      broad: False
+   551_lean_wt_male_H3K9me3:
+      control: 551_lean_wt_male_Input
+      broad: False
+   555_huge_nnatd9_male_H3K27ac:
+      control: 555_huge_nnatd9_male_Input
+      broad: False
+   555_huge_nnatd9_male_H3K27me3:
+      control: 555_huge_nnatd9_male_Input
+      broad: False
+   555_huge_nnatd9_male_H3K9ac:
+      control: 555_huge_nnatd9_male_Input
+      broad: False
+   555_huge_nnatd9_male_H3K9me3:
+      control: 555_huge_nnatd9_male_Input
+      broad: False
+   557_lean_nnat_male_H3K27ac:
+      control: 557_lean_nnat_male_Input
+      broad: False
+   557_lean_nnat_male_H3K27me3:
+      control: 557_lean_nnat_male_Input
+      broad: False
+   557_lean_nnat_male_H3K9ac:
+      control: 557_lean_nnat_male_Input
+      broad: False
+   557_lean_nnat_male_H3K9me3:
+      control: 557_lean_nnat_male_Input
+      broad: False
+   558_huge_nnat_male_H3K27ac:
+      control: 558_huge_nnat_male_Input
+      broad: False
+   558_huge_nnat_male_H3K27me3:
+      control: 558_huge_nnat_male_Input
+      broad: False
+   558_huge_nnat_male_H3K9ac:
+      control: 558_huge_nnat_male_Input
+      broad: False
+   558_huge_nnat_male_H3K9me3:
+      control: 558_huge_nnat_male_Input
+      broad: False
+   582_huge_nnatd9_male_H3K27ac:
+      control: 582_huge_nnatd9_male_Input
+      broad: False
+   582_huge_nnatd9_male_H3K27me3:
+      control: 582_huge_nnatd9_male_Input
+      broad: False
+   582_huge_nnatd9_male_H3K9ac:
+      control: 582_huge_nnatd9_male_Input
+      broad: False
+   582_huge_nnatd9_male_H3K9me3:
+      control: 582_huge_nnatd9_male_Input
+      broad: False
+   583_lean_wt_male_H3K27ac:
+      control: 583_lean_wt_male_Input
+      broad: False
+   583_lean_wt_male_H3K27me3:
+      control: 583_lean_wt_male_Input
+      broad: False
+   583_lean_wt_male_H3K9ac:
+      control: 583_lean_wt_male_Input
+      broad: False
+   583_lean_wt_male_H3K9me3:
+      control: 583_lean_wt_male_Input
+      broad: False
+   592_huge_nnat_male_H3K27ac:
+      control: 592_huge_nnat_male_Input
+      broad: False
+   592_huge_nnat_male_H3K27me3:
+      control: 592_huge_nnat_male_Input
+      broad: False
+   592_huge_nnat_male_H3K9ac:
+      control: 592_huge_nnat_male_Input
+      broad: False
+   592_huge_nnat_male_H3K9me3:
+      control: 592_huge_nnat_male_Input
+      broad: False
+   594_lean_nnat_male_H3K27ac:
+      control: 594_lean_nnat_male_Input
+      broad: False
+   594_lean_nnat_male_H3K27me3:
+      control: 594_lean_nnat_male_Input
+      broad: False
+   594_lean_nnat_male_H3K9ac:
+      control: 594_lean_nnat_male_Input
+      broad: False
+   594_lean_nnat_male_H3K9me3:
+      control: 594_lean_nnat_male_Input
+      broad: False
+   625_huge_nnatd9_male_H3K27ac:
+      control: 625_huge_nnatd9_male_Input
+      broad: False
+   625_huge_nnatd9_male_H3K27me3:
+      control: 625_huge_nnatd9_male_Input
+      broad: False
+   625_huge_nnatd9_male_H3K9ac:
+      control: 625_huge_nnatd9_male_Input
+      broad: False
+   625_huge_nnatd9_male_H3K9me3:
+      control: 625_huge_nnatd9_male_Input
+      broad: False
+   672_huge_nnatd9_male_H3K27ac:
+      control: 672_huge_nnatd9_male_Input
+      broad: False
+   672_huge_nnatd9_male_H3K27me3:
+      control: 672_huge_nnatd9_male_Input
+      broad: False
+   672_huge_nnatd9_male_H3K9ac:
+      control: 672_huge_nnatd9_male_Input
+      broad: False
+   672_huge_nnatd9_male_H3K9me3:
+      control: 672_huge_nnatd9_male_Input
+      broad: False
+   674_lean_wt_male_H3K27ac:
+      control: 674_lean_wt_male_Input
+      broad: False
+   674_lean_wt_male_H3K27me3:
+      control: 674_lean_wt_male_Input
+      broad: False
+   674_lean_wt_male_H3K9ac:
+      control: 674_lean_wt_male_Input
+      broad: False
+   674_lean_wt_male_H3K9me3:
+      control: 674_lean_wt_male_Input
+      broad: False
+   680_huge_nnat_male_H3K27ac:
+      control: 680_huge_nnat_male_Input
+      broad: False
+   680_huge_nnat_male_H3K27me3:
+      control: 680_huge_nnat_male_Input
+      broad: False
+   680_huge_nnat_male_H3K9ac:
+      control: 680_huge_nnat_male_Input
+      broad: False
+   680_huge_nnat_male_H3K9me3:
+      control: 680_huge_nnat_male_Input
+      broad: False
+   683_lean_wt_male_H3K27ac:
+      control: 683_lean_wt_male_Input
+      broad: False
+   683_lean_wt_male_H3K27me3:
+      control: 683_lean_wt_male_Input
+      broad: False
+   683_lean_wt_male_H3K9ac:
+      control: 683_lean_wt_male_Input
+      broad: False
+   683_lean_wt_male_H3K9me3:
+      control: 683_lean_wt_male_Input
+      broad: False
+   686_lean_nnat_male_H3K27ac:
+      control: 686_lean_nnat_male_Input
+      broad: False
+   686_lean_nnat_male_H3K27me3:
+      control: 686_lean_nnat_male_Input
+      broad: False
+   686_lean_nnat_male_H3K9ac:
+      control: 686_lean_nnat_male_Input
+      broad: False
+   686_lean_nnat_male_H3K9me3:
+      control: 686_lean_nnat_male_Input
+      broad: False
+   687_lean_wt_male_H3K27ac:
+      control: 687_lean_wt_male_Input
+      broad: False
+   687_lean_wt_male_H3K27me3:
+      control: 687_lean_wt_male_Input
+      broad: False
+   687_lean_wt_male_H3K9ac:
+      control: 687_lean_wt_male_Input
+      broad: False
+   687_lean_wt_male_H3K9me3:
+      control: 687_lean_wt_male_Input
+      broad: False
